@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 localIs = os.environ.get('AWS_SAM_LOCAL')
 SECRET_NAME = os.environ.get('SecretName')
 
-print("localIs: ", localIs)
 
 if localIs:
     secrets = local_get_secret(SECRET_NAME)
@@ -24,7 +23,6 @@ if localIs:
     os.environ["KeyName"] = 'sessionId'
 
 else:
-    print("os.environ.get('AWS_SESSION_TOKEN')", os.environ.get('AWS_SESSION_TOKEN'))
     secure_tokens = get_secret(SECRET_NAME)
     signing_secret = secure_tokens.get("SIGNING_SECRET")
     token = secure_tokens.get("SLACK_BOT_TOKEN")
