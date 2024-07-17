@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  gen-ai-bot
+
+  Sample SAM Template for gen-ai-bot
+
+
+Parameters:
+  LayerIs:
+    Type: String
+  TableKeyName:
+    Type: String
+    Default: sessionId
+  SecretName:
+    Type: String
+    Default: gen-ai-bot-handson
+  LambdaFunctionName:
+    Type: String
+    Default: gen-ai-slack-bot
+  ModelId:
+    Type: String
+  ModelRegion:
+    Type: String
+
+
+
+Conditions:
+  LayerIsCondition: 
+    !Equals [true, !Ref LayerIs]
+
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 90
+    MemorySize: 128
+
+
+Resources:
+  GenAIBotFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: app/
+      FunctionName: !Ref LambdaFunctionName
+      Handler: handler.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt GenAIBotRole.Arn
+      Architectures:
+        - x86_64
+      Layers:
+        - !If [LayerIsCondition, "arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:11", !Ref "AWS::NoValue"]
+      Environment:
+        Variables:
+          TableName: !Ref SessionTable
+          KeyName: !Ref TableKeyName
+          SecretName: !Ref SecretName
+          ModelId: !Ref ModelId
+          ModelRegion: !Ref ModelRegion
+      Events:
+        BotEvent:
+          Type: Api 
+          Properties:
+            Path: /
+            Method: post
+
+  GenAIBotRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      Policies:
+        - PolicyName: "dynamodb-read-write"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "dynamodb:GetItem"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:UpdateItem"
+                Resource: "*"
+        - PolicyName: "bedrock-invoke"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "bedrock:InvokeModel"
+                Resource: "*"
+        - PolicyName: "secretsmanager-get"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                Resource: "*"
+        - PolicyName: "create-loggroup"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - 'logs:CreateLogGroup'
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+        - PolicyName: "write-cloudwatchlogs"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${LambdaFunctionName}:*"
+
+  # DynamoDB
+  SessionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+        AttributeDefinitions:
+            - AttributeName: !Ref TableKeyName
+              AttributeType: S
+        KeySchema:
+            - AttributeName: !Ref TableKeyName
+              KeyType: HASH
+        ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+
+
+Outputs:
+  SlackApi:
+    Description: "API Gateway endpoint URL for Prod stage for Slack BOT"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  GenAIBotFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt GenAIBotFunction.Arn
