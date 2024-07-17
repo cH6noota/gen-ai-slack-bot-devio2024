@@ -246,3 +246,4 @@ $RECYCLE.BIN/
 memo.md
 
 .aws-sam
+.aws-sam/*
