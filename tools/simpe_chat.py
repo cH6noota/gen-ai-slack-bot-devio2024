@@ -33,5 +33,5 @@ def chat_simple(question):
 
 
 if __name__ == "__main__":
-    question = "今は何回目の会話ですか？"
+    question = "日本の首都はどこですか？"
     print(chat_simple(question))
