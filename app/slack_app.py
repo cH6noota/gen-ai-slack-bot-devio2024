@@ -1,6 +1,7 @@
 import logging, os
 from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 from slack_bolt import App
+from lib.common import model_list
 from lib.secret import get_secret, local_get_secret
 
 
@@ -26,9 +27,8 @@ else:
     secure_tokens = get_secret(SECRET_NAME)
     signing_secret = secure_tokens.get("SIGNING_SECRET")
     token = secure_tokens.get("SLACK_BOT_TOKEN")
-    print(signing_secret, token, secure_tokens)
 
-
+model_id_list = model_list()
 
 app = App(
     process_before_response=True,

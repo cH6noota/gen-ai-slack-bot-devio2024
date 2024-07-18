@@ -9,3 +9,4 @@ def handle_error(event, say, error, logger):
         thread_ts=event["ts"],
         text=f"エラーが発生しました\n{error}"
     )
+

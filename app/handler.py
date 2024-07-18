@@ -15,7 +15,10 @@ def lambda_handler(event, context):
     
     from slack_app import app
     import events.mention
+    import app.events.command
+    import events.modal
     import events.error
+
 
     slack_handler = SlackRequestHandler(app=app)
 
