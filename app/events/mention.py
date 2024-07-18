@@ -7,8 +7,8 @@ from slack_app import app
 
 
 @app.event("app_mention")
-def mention(event, say, body):
-    user_id = body["user_id"]
+def mention(event, say):
+    user_id = event["user"]
     # ユーザ情報の取得
     user_data = get_item(user_id)
     
