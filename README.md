@@ -2,6 +2,8 @@
 
 [DevelopersIO2024](https://event.classmethod.jp/odyssey-offline)内で開催する「生成AIチャットボット開発ハンズオン」の資料です。
 
+<img src="image/archi.png">
+
 # 目次
 
 - 0. はじめに
