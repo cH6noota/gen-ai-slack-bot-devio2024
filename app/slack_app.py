@@ -1,5 +1,6 @@
 import logging, os
 from slack_bolt import App
+from lib.common import model_list
 from lib.secret import get_secret, local_get_secret
 
 SECRET_NAME = os.environ.get('SecretName')

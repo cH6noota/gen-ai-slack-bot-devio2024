@@ -8,21 +8,21 @@ from langchain_community.chat_message_histories import (
 )
 
 
-chat = ChatBedrock(
-    model_id=os.environ.get("ModelId"),
-    model_kwargs={"temperature": 0.1},
-    region_name=os.environ.get("ModelRegion")
-)
-
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", "あなたはAIアシスタントです。"),
-        MessagesPlaceholder(variable_name="messages"),
-    ]
-)
 
 
 def chat_simple(question):
+    chat = ChatBedrock(
+        model_id=os.environ.get("ModelId"),
+        model_kwargs={"temperature": 0.1},
+        region_name=os.environ.get("ModelRegion")
+    )
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", "あなたはAIアシスタントです。"),
+            MessagesPlaceholder(variable_name="messages"),
+        ]
+    )
     chain = prompt | chat
     result = chain.invoke(
         {
@@ -32,8 +32,19 @@ def chat_simple(question):
     return result.content
 
 
-def chat_use_history(question, session_id):
-    
+def chat_use_history(question, session_id, model_id, system_prompt):
+    chat = ChatBedrock(
+        model_id=model_id,
+        model_kwargs={"temperature": 0.1},
+        region_name=os.environ.get("ModelRegion")
+    )
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system_prompt),
+            MessagesPlaceholder(variable_name="messages"),
+        ]
+    )
     chat_history = DynamoDBChatMessageHistory(
             table_name=os.environ.get("SessionTable"), 
             primary_key_name=os.environ.get("SessionTableKey"),
