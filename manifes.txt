@@ -1,8 +1,9 @@
+
 display_information:
-  name: {{ display_name }}
+  name: GenAIBOT
 features:
   bot_user:
-    display_name: {{ display_name }}
+    display_name: gen-ai-bot
     always_online: false
 oauth_config:
   scopes:
@@ -11,9 +12,10 @@ oauth_config:
       - chat:write
 settings:
   event_subscriptions:
-    request_url: {{ request_url }}
+    request_url: https://qg7dxn6rk6.execute-api.ap-northeast-1.amazonaws.com/Prod/
     bot_events:
       - app_mention
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false
+

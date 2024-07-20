@@ -5,7 +5,6 @@ Description: >
 
   Sample SAM Template for gen-ai-bot
 
-
 Parameters:
   LayerIs:
     Type: String
@@ -23,19 +22,15 @@ Parameters:
   ModelRegion:
     Type: String
 
-
-
 Conditions:
   LayerIsCondition: 
     !Equals [true, !Ref LayerIs]
-
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 90
     MemorySize: 128
-
 
 Resources:
   GenAIBotFunction:
@@ -52,8 +47,8 @@ Resources:
         - !If [LayerIsCondition, "arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:11", !Ref "AWS::NoValue"]
       Environment:
         Variables:
-          TableName: !Ref SessionTable
-          KeyName: !Ref TableKeyName
+          SessionTable: !Ref SessionTable
+          SessionTableKey: !Ref TableKeyName
           SecretName: !Ref SecretName
           ModelId: !Ref ModelId
           ModelRegion: !Ref ModelRegion
@@ -75,16 +70,6 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
       Policies:
-        - PolicyName: "dynamodb-read-write"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - "dynamodb:GetItem"
-                  - "dynamodb:PutItem"
-                  - "dynamodb:UpdateItem"
-                Resource: "*"
         - PolicyName: "bedrock-invoke"
           PolicyDocument:
             Version: "2012-10-17"
@@ -100,8 +85,8 @@ Resources:
               - Effect: "Allow"
                 Action:
                   - "secretsmanager:GetSecretValue"
-                Resource: "*"
-        - PolicyName: "create-loggroup"
+                Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:gen-ai-bot-handson*"
+        - PolicyName: "logging-allow"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -109,16 +94,21 @@ Resources:
                 Action:
                   - 'logs:CreateLogGroup'
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
-        - PolicyName: "write-cloudwatchlogs"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
               - Effect: "Allow"
                 Action:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${LambdaFunctionName}:*"
-
+        - PolicyName: "dynamodb-read-write"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "dynamodb:GetItem"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:UpdateItem"
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${SessionTable}"
   # DynamoDB
   SessionTable:
     Type: AWS::DynamoDB::Table
@@ -133,11 +123,10 @@ Resources:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
 
-
 Outputs:
   SlackApi:
     Description: "API Gateway endpoint URL for Prod stage for Slack BOT"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
   GenAIBotFunction:
-    Description: "Hello World Lambda Function ARN"
+    Description: Lambda Function ARN"
     Value: !GetAtt GenAIBotFunction.Arn

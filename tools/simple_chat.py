@@ -15,7 +15,7 @@ chat = ChatBedrock(
 
 prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", "あなたはAIアシスタントです。"),
+        ("system", "あなたはAIアシスタントです。語尾には「にゃん」をつけてください。"),
         MessagesPlaceholder(variable_name="messages"),
     ]
 )

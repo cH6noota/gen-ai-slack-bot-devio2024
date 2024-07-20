@@ -35,8 +35,8 @@ def chat_simple(question):
 def chat_use_history(question, session_id):
     
     chat_history = DynamoDBChatMessageHistory(
-            table_name=os.environ.get("TableName"), 
-            primary_key_name=os.environ.get("KeyName"),
+            table_name=os.environ.get("SessionTable"), 
+            primary_key_name=os.environ.get("SessionTableKey"),
             session_id=session_id, 
     )
     # 質問追加

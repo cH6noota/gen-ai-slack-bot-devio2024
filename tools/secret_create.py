@@ -2,7 +2,7 @@ import boto3
 import json
 import sys
 
-args = sys.argv
+
 
 
 # AWS Secrets Managerのクライアントを初期化
@@ -29,11 +29,13 @@ if __name__ == "__main__":
     secret_name = 'gen-ai-bot-handson'
     description = 'Hands-on generation AI BOT'
 
+    args = sys.argv
+
     secret = args[1].replace(" ","").replace("　","")
     token = args[2].replace(" ","").replace("　","")
 
     if "xoxb-" not in token or "xoxb-" in secret:
-        raise ValueError, "引数1つ目にはSigning Secret, 引数2つ目にはBot User OAuth Tokenを入力してください"
+        raise ValueError("引数1つ目にはSigning Secret, 引数2つ目にはBot User OAuth Tokenを入力してください")
 
     secret_string = json.dumps({
         'SIGNING_SECRET': secret,
@@ -41,4 +43,4 @@ if __name__ == "__main__":
     })
 
     # シークレットを作成
-    create_secret(secret_name, description, secret_string)
+    print(create_secret(secret_name, description, secret_string))

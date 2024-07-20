@@ -3,7 +3,9 @@ import json, os
 from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 from slack_bolt import App, Say
 
-
+SlackRequestHandler.clear_all_log_handlers()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def lambda_handler(event, context):
